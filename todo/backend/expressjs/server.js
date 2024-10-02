@@ -1,4 +1,5 @@
 import express from 'express';
+import { createTodo, getAllTodos } from './todo.js';
 
 const port = 3000;
 
@@ -9,7 +10,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'Hello World!' });
 });
 
-app.post('/todo', async (req, res) => {
+app.post('/todos', async (req, res) => {
   try {
     const { title, description } = req.body;
     const newTodo = await createTodo(title, description);
@@ -19,12 +20,12 @@ app.post('/todo', async (req, res) => {
   }
 });
 
-app.get('/todo', async (req, res) => {
+app.get('/todos', async (req, res) => {
   try {
     const todos = await getAllTodos();
     res.status(200).json(todos);
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred while getting all the todo' });
+    res.status(500).json({ error });
   }
 });
 

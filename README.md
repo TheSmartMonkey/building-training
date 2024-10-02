@@ -1,3 +1,3 @@
 # building-training
 
-Build simple project in multiple languages
+Build simple project in multiple languages / frameworks

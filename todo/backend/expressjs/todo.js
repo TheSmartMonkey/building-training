@@ -6,25 +6,17 @@ export function getTodoById() {
 
 export async function getAllTodos() {
   const db = await connectToDatabase();
-  return db.run('SELECT * FROM todos');
+  const response = await db.run('SELECT * FROM todos');
+  console.log(response);
+  return response;
 }
 
 export async function createTodo(title, description = '') {
   try {
     const db = await connectToDatabase();
-
-    // The table creation is now handled in init.js, so we can remove it from here
-
-    // Insert the new todo
-    const result = await db.run('INSERT INTO todos (title, description) VALUES (?, ?)', [title, description]);
-
-    return {
-      id: result.lastID,
-      title,
-      description,
-      completed: false,
-      created_at: new Date().toISOString(),
-    };
+    const response = await db.run('INSERT INTO todos (title, description) VALUES (?, ?)', [title, description]);
+    console.log(response);
+    return response;
   } catch (error) {
     console.error('Error creating todo:', error);
     throw error;
