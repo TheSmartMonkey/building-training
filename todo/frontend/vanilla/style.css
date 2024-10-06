@@ -1,0 +1,18 @@
+body {
+  background-color: whitesmoke;
+}
+
+.completed {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.toggle-btn {
+  margin-right: 10px;
+}

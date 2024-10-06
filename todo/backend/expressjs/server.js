@@ -1,9 +1,11 @@
 import express from 'express';
+import cors from 'cors';
 import { createTodo, deleteTodo, getAllTodos, getTodoById, markTodoCompleted, updateTodo } from './todo.js';
 
 const port = 3000;
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
