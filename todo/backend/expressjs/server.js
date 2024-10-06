@@ -1,5 +1,5 @@
 import express from 'express';
-import { createTodo, getAllTodos } from './todo.js';
+import { createTodo, deleteTodo, getAllTodos, getTodoById, markTodoCompleted, updateTodo } from './todo.js';
 
 const port = 3000;
 
@@ -24,6 +24,57 @@ app.get('/todos', async (req, res) => {
   try {
     const todos = await getAllTodos();
     res.status(200).json(todos);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+app.get('/todos/:todoId', async (req, res) => {
+  try {
+    const todoId = req.params.todoId;
+    const todo = await getTodoById(todoId);
+    res.status(200).json(todo);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+app.put('/todos/:todoId', async (req, res) => {
+  try {
+    const todoId = req.params.todoId;
+    const body = req.body;
+    const todo = await updateTodo(todoId, body);
+    res.status(200).json(todo);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+app.delete('/todos/:todoId', async (req, res) => {
+  try {
+    const todoId = req.params.todoId;
+    const id = await deleteTodo(todoId);
+    res.status(200).json(id);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+app.patch('/todos/:todoId/complete', async (req, res) => {
+  try {
+    const todoId = req.params.todoId;
+    const id = await markTodoCompleted(todoId, true);
+    res.status(200).json(id);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+app.patch('/todos/:todoId/uncomplete', async (req, res) => {
+  try {
+    const todoId = req.params.todoId;
+    const id = await markTodoCompleted(todoId, false);
+    res.status(200).json(id);
   } catch (error) {
     res.status(500).json({ error });
   }

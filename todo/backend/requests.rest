@@ -19,8 +19,8 @@ PUT http://localhost:3000/todos/1
 Content-Type: application/json
 
 {
-  "title": "Buy groceries",
-  "description": "Milk, eggs, bread, cheese, and fruits",
+  "title": "Buy groceries UPDATED",
+  "description": "Milk, eggs, bread, cheese, and fruits UPDATED",
   "completed": true
 }
 
