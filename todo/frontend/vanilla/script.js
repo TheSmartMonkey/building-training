@@ -67,12 +67,35 @@ function TodoListComponent(todos) {
 
 function TodoComponent(todo) {
   return `
-    <li>
-      <strong>${todo.title}</strong>
-      <p>${todo.description || 'No description'}</p>
-      <span>Status: ${todo.completed ? 'Completed' : 'Pending'}</span>
+    <li class="todo-item ${todo.completed ? 'completed' : ''}">
+      <div class="todo-item-header">
+        <strong>${todo.title}</strong>
+        <button class="delete-btn" data-id="${todo.id}">×</button>
+      </div>
+      <div class="todo-item-content">
+        <p>${todo.description || 'No description'}</p>
+        <span>Status: ${todo.completed ? 'Completed' : 'Pending'}</span>
+      </div>
     </li>
   `;
+}
+
+async function deleteTodo(id) {
+  try {
+    const response = await fetch(`http://localhost:3000/todos/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    console.log('Todo deleted:', id);
+    return id;
+  } catch (error) {
+    console.error('Error deleting todo:', error);
+    throw error;
+  }
 }
 
 async function initializeTodoList() {
@@ -82,6 +105,16 @@ async function initializeTodoList() {
     const todoListComponent = TodoListComponent(todos);
     const todoListElement = document.getElementById('todo-list');
     todoListElement.innerHTML = todoListComponent;
+
+    // Add event listeners for delete buttons
+    const deleteButtons = todoListElement.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', async (event) => {
+        const todoId = event.target.dataset.id;
+        await deleteTodo(todoId);
+        await initializeTodoList(); // Refresh the list after deletion
+      });
+    });
   } catch (error) {
     console.error('Error fetching todos:', error);
   }
