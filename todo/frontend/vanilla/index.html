@@ -11,8 +11,16 @@
 
     <form id="todo-form">
       <div>
-        <span>Title : </span>
+        <label for="todo-input">Title:</label>
         <input type="text" id="todo-input" placeholder="Enter a new todo" required />
+      </div>
+      <div>
+        <label for="todo-description">Description:</label>
+        <textarea id="todo-description" placeholder="Enter description (optional)"></textarea>
+      </div>
+      <div>
+        <label for="todo-completed">Completed:</label>
+        <input type="checkbox" id="todo-completed" />
       </div>
       <br />
       <button type="submit">Add Todo</button>

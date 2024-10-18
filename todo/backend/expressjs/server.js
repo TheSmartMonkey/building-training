@@ -1,5 +1,5 @@
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import { createTodo, deleteTodo, getAllTodos, getTodoById, markTodoCompleted, updateTodo } from './todo.js';
 
 const port = 3000;
@@ -14,8 +14,8 @@ app.get('/', (req, res) => {
 
 app.post('/todos', async (req, res) => {
   try {
-    const { title, description } = req.body;
-    const newTodo = await createTodo(title, description);
+    const { title, description, completed } = req.body;
+    const newTodo = await createTodo(title, description, completed);
     res.status(201).json(newTodo);
   } catch (error) {
     res.status(500).json({ error: 'An error occurred while creating the todo' });

@@ -1,11 +1,11 @@
-async function createTodo(title) {
+async function createTodo(title, description, completed) {
   try {
     const response = await fetch('http://localhost:3000/todos', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ title, description: '' }), // You can add description if needed
+      body: JSON.stringify({ title, description, completed }),
     });
 
     if (!response.ok) {
@@ -25,11 +25,18 @@ async function onFormSubmit(event) {
   event.preventDefault(); // Prevent the form from submitting traditionally
   try {
     const titleInput = document.getElementById('todo-input');
+    const descriptionInput = document.getElementById('todo-description');
+    const completedSwitch = document.getElementById('todo-completed');
+
     const title = titleInput.value.trim();
+    const description = descriptionInput.value.trim();
+    const completed = completedSwitch.checked;
 
     if (title) {
-      const newTodo = await createTodo(title);
-      titleInput.value = ''; // Clear the input field
+      await createTodo(title, description, completed);
+      titleInput.value = ''; // Clear the title input field
+      descriptionInput.value = ''; // Clear the description input field
+      completedSwitch.checked = false; // Reset the completed switch
       await initializeTodoList(); // Refresh the todo list
     }
   } catch (error) {
@@ -45,17 +52,27 @@ async function getAllTodos() {
     return todos;
   } catch (error) {
     console.error('Error:', error);
+    return [];
   }
 }
 
 function TodoListComponent(todos) {
   console.log('TodoListComponent: ', todos);
-  const listOftodos = todos.map((todo) => TodoComponent(todo));
-  return '<ul>' + listOftodos.join('') + '</ul>';
+  if (!todos || todos.length === 0) {
+    return '<p>No todos available.</p>';
+  }
+  const listOfTodos = todos.map((todo) => TodoComponent(todo));
+  return '<ul>' + listOfTodos.join('<br>') + '</ul>';
 }
 
 function TodoComponent(todo) {
-  return `<li>${JSON.stringify(todo)}</li>`;
+  return `
+    <li>
+      <strong>${todo.title}</strong>
+      <p>${todo.description || 'No description'}</p>
+      <span>Status: ${todo.completed ? 'Completed' : 'Pending'}</span>
+    </li>
+  `;
 }
 
 async function initializeTodoList() {
