@@ -69,13 +69,22 @@ function TodoComponent(todo) {
   return `
     <li class="todo-item ${todo.completed ? 'completed' : ''}">
       <div class="todo-item-header">
-        <strong>${todo.title}</strong>
+        <button class="edit-btn" data-id="${todo.id}">✏️</button> <!-- Pencil icon -->
+        <input type="text" class="edit-title" placeholder="Edit title" value="${todo.title}" style="display: none;" />
+        <strong class="todo-title" style="display: inline;">${todo.title}</strong>
         <button class="delete-btn" data-id="${todo.id}">×</button>
       </div>
       <div class="todo-item-content">
-        <p>${todo.description || 'No description'}</p>
-        <span>Status: ${todo.completed ? 'Completed' : 'Pending'}</span>
+        <textarea class="edit-description" placeholder="Edit description" style="display: none;">${todo.description || ''}</textarea>
+        <p class="todo-description" style="display: inline;">${todo.description || 'No description'}</p>
+        <br>
+        <br>
+        <label style="display: inline;">
+          <input type="checkbox" class="edit-completed" ${todo.completed ? 'checked' : ''} />
+          Status: ${todo.completed ? 'Completed' : 'Pending'}
+        </label>
       </div>
+      <button class="save-btn" data-id="${todo.id}" style="display: none;">Save</button>
     </li>
   `;
 }
@@ -98,6 +107,29 @@ async function deleteTodo(id) {
   }
 }
 
+async function updateTodo(id, title, description, completed) {
+  try {
+    const response = await fetch(`http://localhost:3000/todos/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ title, description, completed }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const updatedTodo = await response.json();
+    console.log('Todo updated:', updatedTodo);
+    return updatedTodo;
+  } catch (error) {
+    console.error('Error updating todo:', error);
+    throw error;
+  }
+}
+
 async function initializeTodoList() {
   try {
     const todos = await getAllTodos();
@@ -108,11 +140,61 @@ async function initializeTodoList() {
 
     // Add event listeners for delete buttons
     const deleteButtons = todoListElement.querySelectorAll('.delete-btn');
-    deleteButtons.forEach(button => {
+    deleteButtons.forEach((button) => {
       button.addEventListener('click', async (event) => {
         const todoId = event.target.dataset.id;
         await deleteTodo(todoId);
         await initializeTodoList(); // Refresh the list after deletion
+      });
+    });
+
+    // Add event listeners for edit buttons
+    const editButtons = todoListElement.querySelectorAll('.edit-btn');
+    editButtons.forEach((button) => {
+      button.addEventListener('click', (event) => {
+        const todoId = event.target.dataset.id;
+        const todoItem = button.closest('.todo-item');
+        const editTitle = todoItem.querySelector('.edit-title');
+        const editDescription = todoItem.querySelector('.edit-description');
+        const saveButton = todoItem.querySelector('.save-btn');
+        const todoTitle = todoItem.querySelector('.todo-title');
+        const todoDescription = todoItem.querySelector('.todo-description');
+        const editCompleted = todoItem.querySelector('.edit-completed');
+        const statusText = todoItem.querySelector('.status-text');
+
+        // Toggle visibility
+        if (editTitle.style.display === 'none') {
+          editTitle.style.display = 'inline';
+          editDescription.style.display = 'inline';
+          saveButton.style.display = 'inline';
+          todoTitle.style.display = 'none';
+          todoDescription.style.display = 'none';
+          editCompleted.style.display = 'inline'; // Show the checkbox
+          statusText.style.display = 'none'; // Hide the status text
+        } else {
+          editTitle.style.display = 'none';
+          editDescription.style.display = 'none';
+          saveButton.style.display = 'none';
+          todoTitle.style.display = 'inline';
+          todoDescription.style.display = 'inline';
+          editCompleted.style.display = 'none'; // Hide the checkbox
+          statusText.style.display = 'inline'; // Show the status text
+        }
+      });
+    });
+
+    // Add event listeners for save buttons
+    const saveButtons = todoListElement.querySelectorAll('.save-btn');
+    saveButtons.forEach((button) => {
+      button.addEventListener('click', async (event) => {
+        const todoId = event.target.dataset.id;
+        const todoItem = button.closest('.todo-item');
+        const newTitle = todoItem.querySelector('.edit-title').value;
+        const newDescription = todoItem.querySelector('.edit-description').value;
+        const newCompleted = todoItem.querySelector('.edit-completed').checked; // Get the updated completed status
+
+        await updateTodo(todoId, newTitle, newDescription, newCompleted);
+        await initializeTodoList(); // Refresh the list after updating
       });
     });
   } catch (error) {
