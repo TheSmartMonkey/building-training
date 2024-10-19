@@ -1,4 +1,25 @@
 import { connectToDatabase } from './sqlite/connect.js';
+import dynamoose from 'dynamoose';
+
+// Configure Dynamoose to connect to local DynamoDB
+dynamoose.aws.sdk.config.update({
+  region: 'eu-west-3', // You can use any region
+  endpoint: 'http://localhost:8000', // Local DynamoDB endpoint
+});
+
+// Define the schema for the todos table
+const todoSchema = new dynamoose.Schema({
+  id: {
+    type: String,
+    hashKey: true, // Partition key
+  },
+  title: String,
+  description: String,
+  completed: Boolean,
+});
+
+// Create a model for the todos table
+const Todo = dynamoose.model('todos', todoSchema);
 
 export async function getTodoById(id) {
   const db = await connectToDatabase();
@@ -9,22 +30,22 @@ export async function getTodoById(id) {
 }
 
 export async function getAllTodos() {
-  const db = await connectToDatabase();
-  // Purpose: The all method is used for SQL queries that return multiple rows of data, such as SELECT queries.
-  const todos = await db.all('SELECT * FROM todos');
+  // Fetch all todos from the DynamoDB table
+  const todos = await Todo.scan().exec();
   return todos;
 }
 
 export async function createTodo(title, description = '', completed = false) {
-  const db = await connectToDatabase();
-  // Purpose: The run method is used to execute SQL queries that do not return data
-  // These queries are usually for modifying the database, such as INSERT, UPDATE, DELETE, or CREATE TABLE statements.
-  const result = await db.run('INSERT INTO todos (title, description, completed) VALUES (?, ?, ?)', [
+  // Create a new todo item
+  const newTodo = new Todo({
+    id: new Date().getTime().toString(), // Generate a unique ID (you may want to use a better method)
     title,
     description,
-    completed ? 1 : 0,
-  ]);
-  return { id: result.lastID, title, description, completed };
+    completed,
+  });
+
+  await newTodo.save();
+  return newTodo;
 }
 
 export async function updateTodo(id, { title, description, completed }) {

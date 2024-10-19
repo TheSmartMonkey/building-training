@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "nodemon server.js",
-    "db": "node sqlite/init.js"
+    "db": "serverless dynamodb start",
+    "install:db": "sls dynamodb install"
   },
   "keywords": [],
   "author": "",
@@ -13,11 +14,14 @@
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
+    "dynamoose": "^4.0.2",
     "express": "^4.21.0",
     "sqlite": "^5.0.1",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "serverless": "^3.39.0",
+    "serverless-dynamodb-local": "^0.2.40"
   }
 }
