@@ -1,11 +1,8 @@
-import { connectToDatabase } from './sqlite/connect.js';
 import dynamoose from 'dynamoose';
 
-// Configure Dynamoose to connect to local DynamoDB
-dynamoose.aws.sdk.config.update({
-  region: 'eu-west-3', // You can use any region
-  endpoint: 'http://localhost:8000', // Local DynamoDB endpoint
-});
+// dynamoose.aws.sdk.config.update({
+//   region: 'eu-west-3',
+// });
 
 // Define the schema for the todos table
 const todoSchema = new dynamoose.Schema({
@@ -22,16 +19,15 @@ const todoSchema = new dynamoose.Schema({
 const Todo = dynamoose.model('todos', todoSchema);
 
 export async function getTodoById(id) {
-  const db = await connectToDatabase();
-  // Purpose: The get method is used to retrieve a single row from a query.
-  // It's typically used with SELECT statements when you expect only one result or are interested in fetching only the first row of the result set.
-  const todo = await db.get('SELECT * FROM todos WHERE id = ?', [id]);
+  // Fetch a single todo by ID from the DynamoDB table
+  const todo = await Todo.get(id);
   return todo;
 }
 
 export async function getAllTodos() {
   // Fetch all todos from the DynamoDB table
   const todos = await Todo.scan().exec();
+  console.log(todos);
   return todos;
 }
 
@@ -49,19 +45,19 @@ export async function createTodo(title, description = '', completed = false) {
 }
 
 export async function updateTodo(id, { title, description, completed }) {
-  const db = await connectToDatabase();
-  await db.run('UPDATE todos SET title = ?, description = ?, completed = ? WHERE id = ?', [title, description, completed ? 1 : 0, id]);
-  return { id, title, description, completed };
+  // Update an existing todo item
+  const updatedTodo = await Todo.update({ id }, { title, description, completed });
+  return updatedTodo;
 }
 
 export async function deleteTodo(id) {
-  const db = await connectToDatabase();
-  await db.run('DELETE FROM todos WHERE id = ?', [id]);
+  // Delete a todo item by ID
+  await Todo.delete(id);
   return { id };
 }
 
 export async function markTodoCompleted(id, completed) {
-  const db = await connectToDatabase();
-  await db.run('UPDATE todos SET completed = ? WHERE id = ?', [completed ? 1 : 0, id]);
-  return { id, completed };
+  // Update the completed status of a todo item
+  const updatedTodo = await Todo.update({ id }, { completed });
+  return updatedTodo;
 }

@@ -1,14 +1,10 @@
-const AWS = require('aws-sdk');
+import dynamoose from 'dynamoose';
+import { getAllTodos } from './todo.js';
 
-const dynamoDB = new AWS.DynamoDB({
-    endpoint: 'http://localhost:8000',
-    region: 'eu-west-3' // or your preferred region
+const ddb = new dynamoose.aws.ddb.DynamoDB({
+  region: 'eu-west-3',
 });
 
-const params = {
-    TableName: 'todos'
-};
+dynamoose.aws.ddb.set(ddb);
 
-dynamoDB.listTables(params, (err, data) => {
-    if (err) console.log(err); else console.log(data);
-});
+getAllTodos();
