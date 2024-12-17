@@ -2,14 +2,6 @@ service: my-todo-app
 
 custom:
   stage: dev
-  dynamodb:
-    stages: dev
-      start:
-        migrate: true
-        port: 8111
-
-plugins:
-  - serverless-dynamodb-local
 
 provider:
   name: aws
