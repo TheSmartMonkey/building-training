@@ -1,18 +1,14 @@
 import dynamoose from 'dynamoose';
 
-// dynamoose.aws.sdk.config.update({
-//   region: 'eu-west-3',
-// });
-
-// Define the schema for the todos table
 const todoSchema = new dynamoose.Schema({
   id: {
     type: String,
     hashKey: true, // Partition key
+    required: true,
   },
-  title: String,
-  description: String,
-  completed: Boolean,
+  title: { type: String, required: true },
+  description: { type: String, required: false },
+  completed: { type: Boolean, required: false },
 });
 
 // Create a model for the todos table
@@ -27,7 +23,6 @@ export async function getTodoById(id) {
 export async function getAllTodos() {
   // Fetch all todos from the DynamoDB table
   const todos = await Todo.scan().exec();
-  console.log(todos);
   return todos;
 }
 

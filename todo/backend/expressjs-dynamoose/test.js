@@ -7,4 +7,6 @@ const ddb = new dynamoose.aws.ddb.DynamoDB({
 
 dynamoose.aws.ddb.set(ddb);
 
-getAllTodos();
+getAllTodos().then((todos) => {
+  console.log(todos[0].id);
+});
