@@ -1,33 +1,67 @@
 import { useState } from 'react';
 import './App.css';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
+import { Todo } from './models/todo.model';
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    completed: false,
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setTodos([...todos, formData]);
+    setFormData({ title: '', description: '', completed: false });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+
+    setFormData((prev) => ({
+      ...prev,
+      [id.replace('todo-', '')]: type === 'checkbox' ? checked : value,
+    }));
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div>
+      <h1>Todo App</h1>
+
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="todo-title">Title:</label>
+          <input type="text" id="todo-title" value={formData.title} onChange={handleInputChange} placeholder="Enter a new todo" required />
+        </div>
+        <div>
+          <label htmlFor="todo-description">Description:</label>
+          <textarea
+            id="todo-description"
+            value={formData.description}
+            onChange={handleInputChange}
+            placeholder="Enter description (optional)"
+          />
+        </div>
+        <div>
+          <label htmlFor="todo-completed">Completed:</label>
+          <input type="checkbox" id="todo-completed" checked={formData.completed} onChange={handleInputChange} />
+        </div>
+        <br />
+        <button type="submit">Add Todo</button>
+      </form>
+
+      <div id="todo-list">
+        {todos.map((todo, index) => (
+          <div key={index}>
+            <h3>{todo.title}</h3>
+            <p>{todo.description}</p>
+            <p>Status: {todo.completed ? 'Completed' : 'Pending'}</p>
+          </div>
+        ))}
       </div>
-      <h1>
-        Vite + React4 <span className="text-blue-500 m-10">4</span>
-      </h1>
-      <div>
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
-      <div className="flex justify-center items-center h-screen bg-blue-500 text-white text-3xl">Tailwind CSS with React and Vite!</div>
-    </>
+    </div>
   );
 }
 
