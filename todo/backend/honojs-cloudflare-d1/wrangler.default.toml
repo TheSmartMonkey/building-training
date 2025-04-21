@@ -9,3 +9,9 @@ JWT_SECRET = "1234"
 
 [env.prod.vars]
 JWT_SECRET = "1234"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "todo-db"
+database_id = "XXXXX"
+schema_file = "drizzle/todo/todo.schema.ts"

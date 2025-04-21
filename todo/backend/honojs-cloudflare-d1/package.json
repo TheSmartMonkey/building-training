@@ -13,10 +13,13 @@
     "test": "bun run unit && bun run integration",
     "unit": "cross-env-shell NO_LOGS=true jest --group=unit",
     "integration": "cross-env-shell NO_LOGS=true jest --group=integration --maxWorkers=1",
-    "genapi": "bun run src/swagger.ts"
+    "genapi": "bun run src/swagger.ts",
+    "db:init": "drizzle-kit generate && drizzle-kit push"
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.17.0",
+    "better-sqlite3": "^11.9.1",
+    "drizzle-orm": "^0.42.0",
     "hono": "^4.6.9",
     "pino": "^9.5.0",
     "zod": "^3.23.8"
@@ -32,6 +35,7 @@
     "@typescript-eslint/parser": "^8.14.0",
     "bun-types": "^1.2.10",
     "cross-env": "^7.0.3",
+    "drizzle-kit": "^0.31.0",
     "eslint": "^8.24.0",
     "eslint-plugin-jest": "^28.9.0",
     "eslint-plugin-node": "^11.1.0",

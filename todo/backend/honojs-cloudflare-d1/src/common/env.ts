@@ -1,11 +1,15 @@
 import { EnvVariables } from '@/models/global/env.model';
 
-export let ENV_VARIABLES: EnvVariables;
+export class EnvManager {
+  private static _value: EnvVariables;
 
-export function getEnv(): EnvVariables {
-  return ENV_VARIABLES;
-}
+  private constructor() {}
 
-export function setEnv(env: EnvVariables): void {
-  ENV_VARIABLES = env;
+  public static get value(): EnvVariables {
+    return EnvManager._value;
+  }
+
+  public static set value(env: EnvVariables) {
+    EnvManager._value = env;
+  }
 }

@@ -11,3 +11,7 @@ package-lock.json
 
 # Swagger
 swagger.json
+
+# Drizzle
+drizzle
+todo-db
