@@ -2,9 +2,9 @@
   "name": "hono-ddd",
   "type": "module",
   "scripts": {
-    "start": "tsx watch src/index.ts",
+    "start": "tsx watch src/server.ts",
     "build": "tsc",
-    "start:prod": "node dist/index.js"
+    "start:prod": "node dist/server.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.1",
@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3"
   }
