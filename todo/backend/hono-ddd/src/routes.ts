@@ -3,6 +3,6 @@ import { Hono } from 'hono';
 
 const app = new Hono();
 
-app.route('/todo', todoRoute);
+app.route('/todos', todoRoute);
 
 export default app;
