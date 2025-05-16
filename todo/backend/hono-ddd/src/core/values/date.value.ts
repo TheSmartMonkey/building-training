@@ -4,4 +4,8 @@ export class DateValue {
   get value(): Date {
     return this._value;
   }
+
+  toISOString(): string {
+    return this._value.toISOString();
+  }
 }
