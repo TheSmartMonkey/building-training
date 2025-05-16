@@ -27,7 +27,7 @@ export class TodoController {
       const db = SQLiteClient.getInstance();
       const getAllTodoApp = new GetAllTodoApp(new TodoData(db, new TodoDbSchema()));
       const todoEntities = await getAllTodoApp.execute();
-      const todos = CreateTodoDto.toOutputList(todoEntities);
+      const todos = todoEntities.map((todo) => CreateTodoDto.toOutput(todo));
       return c.json(todos);
     } catch (error) {
       return c.json({ error: error instanceof Error ? error.message : 'Unknown error' }, 500);

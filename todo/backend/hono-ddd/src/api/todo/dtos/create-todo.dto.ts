@@ -19,10 +19,6 @@ export class CreateTodoDto {
       updatedAt: value.updatedAt.toISOString(),
     };
   }
-
-  static toOutputList(entities: TodoEntity[]): CreateTodoOutput[] {
-    return entities.map((entity) => this.toOutput(entity));
-  }
 }
 
 export type CreateTodoInput = z.infer<typeof createTodoInput>;
