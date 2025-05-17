@@ -1,37 +1,35 @@
 import { useState } from 'react';
+import { Todo } from '../models/todo.model';
 
 export function ListTodoComponent() {
-  // Define the Todo type
-  interface Todo {
-    id: number;
-    text: string;
-    completed: boolean;
-  }
-
-  // Initialize todos state with some example items
-  const [todos, setTodos] = useState<Todo[]>([
-    { id: 1, text: 'Learn React', completed: false },
-    { id: 2, text: 'Build a Todo App', completed: false },
-    { id: 3, text: 'Master TypeScript', completed: false },
+  const [todos] = useState<Todo[]>([
+    { todoId: 1, title: 'Learn React', description: 'Learn React', completed: false },
+    { todoId: 2, title: 'Build a Todo App', description: 'Build a Todo App', completed: false },
+    { todoId: 3, title: 'Master TypeScript', description: 'Master TypeScript', completed: true },
   ]);
 
   return (
-    <div className="container">
-      <h1>Todo List</h1>
-      <ul className="todo-list">
-        {todos.map((todo) => (
-          <li key={todo.id} className={todo.completed ? 'completed' : ''}>
-            <input
-              type="checkbox"
-              checked={todo.completed}
-              onChange={() => {
-                setTodos(todos.map((t) => (t.id === todo.id ? { ...t, completed: !t.completed } : t)));
-              }}
-            />
-            <span>{todo.text}</span>
-          </li>
-        ))}
-      </ul>
+    <div id="todo-list" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 my-8">
+      {todos.map((todo) => (
+        <div
+          key={todo.todoId}
+          className="card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200 dark:border-gray-700"
+        >
+          <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">{todo.title}</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">{todo.description}</p>
+          <div className="flex justify-between items-center">
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                todo.completed
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                  : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+              }`}
+            >
+              {todo.completed ? 'Completed' : 'Pending'}
+            </span>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
