@@ -69,10 +69,10 @@ function TodoComponent(todo) {
   return `
     <li class="todo-item ${todo.completed ? 'completed' : ''}">
       <div class="todo-item-header">
-        <button class="edit-btn" data-id="${todo.id}">✏️</button> <!-- Pencil icon -->
+        <button class="edit-btn" data-id="${todo.todoId}">✏️</button> <!-- Pencil icon -->
         <input type="text" class="edit-title" placeholder="Edit title" value="${todo.title}" style="display: none;" />
         <strong class="todo-title" style="display: inline;">${todo.title}</strong>
-        <button class="delete-btn" data-id="${todo.id}">×</button>
+        <button class="delete-btn" data-id="${todo.todoId}">×</button>
       </div>
       <div class="todo-item-content">
         <textarea class="edit-description" placeholder="Edit description" style="display: none;">${todo.description || ''}</textarea>
@@ -81,17 +81,17 @@ function TodoComponent(todo) {
         <br>
         <label style="display: inline;">
           <input type="checkbox" class="edit-completed" ${todo.completed ? 'checked' : ''} />
-          Status: ${todo.completed ? 'Completed' : 'Pending'}
+          Completed
         </label>
       </div>
-      <button class="save-btn" data-id="${todo.id}" style="display: none;">Save</button>
+      <button class="save-btn" data-id="${todo.todoId}" style="display: none;">Save</button>
     </li>
   `;
 }
 
-async function deleteTodo(id) {
+async function deleteTodo(todoId) {
   try {
-    const response = await fetch(`http://localhost:3000/todos/${id}`, {
+    const response = await fetch(`http://localhost:3000/todos/${todoId}`, {
       method: 'DELETE',
     });
 
@@ -99,17 +99,17 @@ async function deleteTodo(id) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    console.log('Todo deleted:', id);
-    return id;
+    console.log('Todo deleted:', todoId);
+    return todoId;
   } catch (error) {
     console.error('Error deleting todo:', error);
     throw error;
   }
 }
 
-async function updateTodo(id, title, description, completed) {
+async function updateTodo(todoId, title, description, completed) {
   try {
-    const response = await fetch(`http://localhost:3000/todos/${id}`, {
+    const response = await fetch(`http://localhost:3000/todos/${todoId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -142,6 +142,7 @@ async function initializeTodoList() {
     const deleteButtons = todoListElement.querySelectorAll('.delete-btn');
     deleteButtons.forEach((button) => {
       button.addEventListener('click', async (event) => {
+        console.log({ event });
         const todoId = event.target.dataset.id;
         await deleteTodo(todoId);
         await initializeTodoList(); // Refresh the list after deletion
@@ -151,8 +152,7 @@ async function initializeTodoList() {
     // Add event listeners for edit buttons
     const editButtons = todoListElement.querySelectorAll('.edit-btn');
     editButtons.forEach((button) => {
-      button.addEventListener('click', (event) => {
-        const todoId = event.target.dataset.id;
+      button.addEventListener('click', () => {
         const todoItem = button.closest('.todo-item');
         const editTitle = todoItem.querySelector('.edit-title');
         const editDescription = todoItem.querySelector('.edit-description');
@@ -160,7 +160,6 @@ async function initializeTodoList() {
         const todoTitle = todoItem.querySelector('.todo-title');
         const todoDescription = todoItem.querySelector('.todo-description');
         const editCompleted = todoItem.querySelector('.edit-completed');
-        const statusText = todoItem.querySelector('.status-text');
 
         // Toggle visibility
         if (editTitle.style.display === 'none') {
@@ -170,7 +169,6 @@ async function initializeTodoList() {
           todoTitle.style.display = 'none';
           todoDescription.style.display = 'none';
           editCompleted.style.display = 'inline'; // Show the checkbox
-          statusText.style.display = 'none'; // Hide the status text
         } else {
           editTitle.style.display = 'none';
           editDescription.style.display = 'none';
@@ -178,7 +176,6 @@ async function initializeTodoList() {
           todoTitle.style.display = 'inline';
           todoDescription.style.display = 'inline';
           editCompleted.style.display = 'none'; // Hide the checkbox
-          statusText.style.display = 'inline'; // Show the status text
         }
       });
     });

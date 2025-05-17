@@ -19,8 +19,9 @@ export function controller<T extends JSONValue>(
 
       const output: T = await callback({ body, params, queryParams });
 
-      return c.json({ success: true, data: output });
+      return c.json(output);
     } catch (error) {
+      console.error(error);
       if (error instanceof Error) {
         throw new HTTPException(500, { message: error?.message, cause: error });
       }
