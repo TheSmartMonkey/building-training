@@ -1,6 +1,5 @@
 import { DateValue } from '@/core/values/date.value';
 import { UniqueIdValue } from '@/core/values/unique-id.value';
-import { SelectDbTodo } from '@/data/todo/todo.schema';
 export class TodoEntity {
   constructor(private readonly _value: Todo) {}
 
@@ -32,14 +31,20 @@ export class TodoEntityFactory {
   }
 }
 
-type TodoWithoutValues = Omit<SelectDbTodo, 'todoId' | 'createdAt' | 'updatedAt'>;
-type Todo = TodoWithoutValues & {
+type Todo = {
   todoId: UniqueIdValue;
+  title: string;
+  description: string;
+  completed: boolean;
   createdAt: DateValue;
   updatedAt: DateValue;
 };
-type PartialTodo = TodoWithoutValues & {
+
+type PartialTodo = {
   todoId?: UniqueIdValue;
+  title: string;
+  description: string;
+  completed: boolean;
   createdAt?: DateValue;
   updatedAt?: DateValue;
 };

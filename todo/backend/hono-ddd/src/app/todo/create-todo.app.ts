@@ -7,6 +7,7 @@ export class CreateTodoApp {
 
   async execute(input: CreateTodoInput): Promise<TodoEntity> {
     const todo = TodoEntityFactory.create(input);
-    return this._todoData.create(todo);
+    await this._todoData.create(todo);
+    return todo;
   }
 }

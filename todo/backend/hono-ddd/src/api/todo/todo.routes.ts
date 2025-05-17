@@ -5,5 +5,6 @@ const todoRoute = new Hono();
 
 todoRoute.post('/', TodoController.createTodo);
 todoRoute.get('/', TodoController.getAllTodo);
+todoRoute.get('/:todoId', TodoController.getTodoById);
 
 export default todoRoute;
