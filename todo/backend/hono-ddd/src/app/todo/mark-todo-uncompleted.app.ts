@@ -1,6 +1,6 @@
 import { TodoData } from '@/data/todo/todo.data';
 
-export class MarkTodoCompletedApp {
+export class MarkTodoUncompletedApp {
   constructor(private readonly _todoData: TodoData) {}
 
   async execute(input: { todoId: string }): Promise<void> {
@@ -9,7 +9,7 @@ export class MarkTodoCompletedApp {
       throw new Error('Todo not found');
     }
 
-    todo.value.completed = true;
+    todo.value.completed = false;
     await this._todoData.update(todo);
   }
 }

@@ -4,7 +4,7 @@ import { UniqueIdValue } from '@/core/values/unique-id.value';
 import { InsertDbTodo, SelectDbTodo } from './todo.schema';
 
 export class TodoDataAdapter {
-  toDbSchema(todo: TodoEntity): InsertDbTodo {
+  toSchema(todo: TodoEntity): InsertDbTodo {
     return {
       title: todo.value.title,
       description: todo.value.description,
