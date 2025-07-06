@@ -1,39 +1,53 @@
-import { useEffect, useState } from 'react';
 import { Todo } from '../../models/todo.model';
 import { TodoService } from '../../services/todo.service';
 
-export function useListTodoApp(todoService: TodoService) {
-  const [todos, setTodos] = useState<Todo[]>([
-    { todoId: 1, title: 'Learn React', description: 'Learn React', completed: false },
-    { todoId: 2, title: 'Build a Todo App', description: 'Build a Todo App', completed: false },
-    { todoId: 3, title: 'Master TypeScript', description: 'Master TypeScript', completed: true },
-  ]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+export class ListTodoApp {
+  private todos: Todo[] = [];
+  private loading: boolean = false;
+  private error: string | null = null;
 
-  const fetchTodos = async () => {
+  constructor(private todoService: TodoService) {}
+
+  // State getters
+  getTodos(): Todo[] {
+    return this.todos;
+  }
+
+  getLoading(): boolean {
+    return this.loading;
+  }
+
+  getError(): string | null {
+    return this.error;
+  }
+
+  getCompletedTodos(): Todo[] {
+    return this.todos.filter((todo) => todo.completed);
+  }
+
+  getPendingTodos(): Todo[] {
+    return this.todos.filter((todo) => !todo.completed);
+  }
+
+  getCompletedCount(): number {
+    return this.getCompletedTodos().length;
+  }
+
+  getPendingCount(): number {
+    return this.getPendingTodos().length;
+  }
+
+  async fetchTodos(): Promise<void> {
     try {
-      setLoading(true);
-      setError(null);
-      const fetchedTodos = await todoService.getAllTodos();
-      setTodos(fetchedTodos);
+      this.loading = true;
+      this.error = null;
+      const fetchedTodos = await this.todoService.getAllTodos();
+      this.todos = fetchedTodos;
     } catch (err) {
-      setError('Failed to fetch todos');
+      this.error = 'Failed to fetch todos';
       console.error(err);
     } finally {
-      setLoading(false);
+      this.loading = false;
     }
-  };
-
-  // Load todos on initial mount
-  useEffect(() => {
-    fetchTodos();
-  }, []);
-
-  return {
-    todos,
-    loading,
-    error,
-    refreshTodos: fetchTodos,
-  };
+  }
 }

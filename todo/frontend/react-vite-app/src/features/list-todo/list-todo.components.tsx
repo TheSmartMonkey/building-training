@@ -1,14 +1,32 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import HttpCommon from '../../common/http.common';
+import { Todo } from '../../models/todo.model';
 import { TodoService } from '../../services/todo.service';
-import { useListTodoApp } from './list-todo.app';
+import { ListTodoApp } from './list-todo.app';
 
 export function ListTodoComponent() {
-  // Create instances of dependencies
-  const httpClient = new HttpCommon();
-  const todoService = new TodoService(httpClient);
+  const httpClient = useMemo(() => new HttpCommon(), []);
+  const todoService = useMemo(() => new TodoService(httpClient), [httpClient]);
+  const listTodoApp = useMemo(() => new ListTodoApp(todoService), [todoService]);
 
-  // Use the custom hook instead of local state
-  const { todos, loading, error, refreshTodos } = useListTodoApp(todoService);
+  const [todos, setTodos] = useState<Todo[]>(listTodoApp.getTodos());
+  const [loading, setLoading] = useState<boolean>(listTodoApp.getLoading());
+  const [error, setError] = useState<string | null>(listTodoApp.getError());
+  const [completedCount, setCompletedCount] = useState<number>(listTodoApp.getCompletedCount());
+  const [pendingCount, setPendingCount] = useState<number>(listTodoApp.getPendingCount());
+
+  const refreshTodos = useCallback(async () => {
+    await listTodoApp.fetchTodos();
+    setTodos(listTodoApp.getTodos());
+    setLoading(listTodoApp.getLoading());
+    setError(listTodoApp.getError());
+    setCompletedCount(listTodoApp.getCompletedCount());
+    setPendingCount(listTodoApp.getPendingCount());
+  }, [listTodoApp]);
+
+  useEffect(() => {
+    refreshTodos();
+  }, [refreshTodos]);
 
   if (loading) {
     return <div className="text-center py-4">Loading todos...</div>;
@@ -29,9 +47,15 @@ export function ListTodoComponent() {
     <div className="container mx-auto px-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">My Todos</h2>
-        <button onClick={refreshTodos} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          Refresh
-        </button>
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-600">
+            <span className="mr-2">Completed: {completedCount}</span>
+            <span>Pending: {pendingCount}</span>
+          </div>
+          <button onClick={refreshTodos} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Refresh
+          </button>
+        </div>
       </div>
 
       <div id="todo-list" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 my-8">
