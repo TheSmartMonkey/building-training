@@ -7,7 +7,7 @@ export type ChipProps = {
   disabled?: boolean;
 }
 
-export function ChipComponent({ label, variant = 'default', size = 'md', className = '', onClick, disabled = false }: ChipProps) {
+export function ChipComponent({ label, variant = 'default', size = 'sm', className = '', onClick, disabled = false }: ChipProps) {
   const baseClasses = 'inline-flex items-center font-medium rounded-full border';
 
   const variantClasses = {

@@ -7,7 +7,11 @@ import { InputComponent } from '../../components/input.component';
 import { TextareaComponent } from '../../components/textarea.component';
 import { TodoService } from '../../services/todo.service';
 
-export function CreateTodoComponent() {
+interface CreateTodoComponentProps {
+  onTodoCreated?: () => void;
+}
+
+export function CreateTodoComponent({ onTodoCreated }: CreateTodoComponentProps) {
   const httpClient = useMemo(() => new HttpCommon(), []);
   const todoService = useMemo(() => new TodoService(httpClient), [httpClient]);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +32,10 @@ export function CreateTodoComponent() {
       await todoService.createTodo(todo);
       setSuccess('Todo created successfully!');
       (e.target as HTMLFormElement).reset();
+
+      if (onTodoCreated) {
+        onTodoCreated();
+      }
     } catch (error) {
       console.error(error);
       setError('An unexpected error occurred');

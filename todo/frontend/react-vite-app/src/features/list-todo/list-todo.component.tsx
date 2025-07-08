@@ -4,38 +4,64 @@ import { CardComponent } from '../../components/card.component';
 import { ChipProps } from '../../components/chip.component';
 import { Todo } from '../../models/todo.model';
 import { TodoService } from '../../services/todo.service';
-import { ListTodoApp } from './list-todo.app';
 
 export function ListTodoComponent() {
   const httpClient = useMemo(() => new HttpCommon(), []);
   const todoService = useMemo(() => new TodoService(httpClient), [httpClient]);
-  const listTodoApp = useMemo(() => new ListTodoApp(todoService), [todoService]);
 
-  const [todos, setTodos] = useState<Todo[]>(listTodoApp.getTodos());
-  const [loading, setLoading] = useState<boolean>(listTodoApp.getLoading());
-  const [error, setError] = useState<string | null>(listTodoApp.getError());
-  const [completedCount, setCompletedCount] = useState<number>(listTodoApp.getCompletedCount());
-  const [pendingCount, setPendingCount] = useState<number>(listTodoApp.getPendingCount());
+  // State management (previously in ListTodoApp)
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const syncTodos = useCallback(async () => {
-    setTodos(listTodoApp.getTodos());
-    setLoading(listTodoApp.getLoading());
-    setError(listTodoApp.getError());
-    setCompletedCount(listTodoApp.getCompletedCount());
-    setPendingCount(listTodoApp.getPendingCount());
-  }, [listTodoApp]);
+  // Computed values (previously getter methods in ListTodoApp)
+  const completedTodos = useMemo(() => todos.filter((todo) => todo.completed), [todos]);
+  const pendingTodos = useMemo(() => todos.filter((todo) => !todo.completed), [todos]);
+  const completedCount = useMemo(() => completedTodos.length, [completedTodos]);
+  const pendingCount = useMemo(() => pendingTodos.length, [pendingTodos]);
+
+  // Business logic methods (previously in ListTodoApp)
+  const fetchTodos = useCallback(async (): Promise<void> => {
+    try {
+      setLoading(true);
+      setError(null);
+      const fetchedTodos = await todoService.getAllTodos();
+      setTodos(fetchedTodos);
+    } catch (err) {
+      setError('Failed to fetch todos');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [todoService]);
+
+  const deleteTodo = useCallback(
+    async (todoId: string): Promise<void> => {
+      try {
+        setLoading(true);
+        setError(null);
+        await todoService.deleteTodo(todoId);
+        // Remove the todo from the local state
+        setTodos((prevTodos) => prevTodos.filter((todo) => todo.todoId !== todoId));
+      } catch (err) {
+        setError('Failed to delete todo');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [todoService],
+  );
 
   const refreshTodos = useCallback(async () => {
-    await listTodoApp.fetchTodos();
-    syncTodos();
-  }, [listTodoApp, syncTodos]);
+    await fetchTodos();
+  }, [fetchTodos]);
 
   const handleDeleteTodo = useCallback(
     async (todoId: string) => {
-      await listTodoApp.deleteTodo(todoId);
-      syncTodos();
+      await deleteTodo(todoId);
     },
-    [listTodoApp, syncTodos],
+    [deleteTodo],
   );
 
   useEffect(() => {
@@ -47,7 +73,6 @@ export function ListTodoComponent() {
     chips.push({
       label: todo.completed ? 'Completed' : 'Pending',
       variant: todo.completed ? 'success' : 'warning',
-      size: 'sm',
     });
 
     return chips;
