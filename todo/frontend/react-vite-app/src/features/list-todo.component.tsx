@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import HttpCommon from '../../common/http.common';
-import { CardComponent } from '../../components/card.component';
-import { ChipProps } from '../../components/chip.component';
-import { Todo } from '../../models/todo.model';
-import { TodoService } from '../../services/todo.service';
+import HttpCommon from '../common/http.common';
+import { CardComponent } from '../components/card.component';
+import { ChipProps } from '../components/chip.component';
+import { PopupComponent } from '../components/popup.component';
+import { Todo } from '../models/todo.model';
+import { TodoService } from '../services/todo.service';
+import { UdpateTodoPopupComponent } from './update-todo-popup.component';
 
 export function ListTodoComponent() {
   const httpClient = useMemo(() => new HttpCommon(), []);
@@ -13,6 +15,8 @@ export function ListTodoComponent() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+  const [isEditPopupOpen, setIsEditPopupOpen] = useState<boolean>(false);
 
   // Computed values (previously getter methods in ListTodoApp)
   const completedTodos = useMemo(() => todos.filter((todo) => todo.completed), [todos]);
@@ -53,6 +57,24 @@ export function ListTodoComponent() {
     [todoService],
   );
 
+  const updateTodo = useCallback(
+    async (todoId: string, updatedTodo: Todo): Promise<void> => {
+      try {
+        setLoading(true);
+        setError(null);
+        await todoService.updateTodo(todoId, updatedTodo);
+        // Update the todo in the local state
+        setTodos((prevTodos) => prevTodos.map((todo) => (todo.todoId === todoId ? updatedTodo : todo)));
+      } catch (err) {
+        setError('Failed to update todo');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [todoService],
+  );
+
   const refreshTodos = useCallback(async () => {
     await fetchTodos();
   }, [fetchTodos]);
@@ -63,6 +85,25 @@ export function ListTodoComponent() {
     },
     [deleteTodo],
   );
+
+  const handleUpdateTodo = useCallback(async (todo: Todo) => {
+    setEditingTodo(todo);
+    setIsEditPopupOpen(true);
+  }, []);
+
+  const handleSaveTodo = useCallback(
+    async (updatedTodo: Todo) => {
+      await updateTodo(updatedTodo.todoId, updatedTodo);
+      setIsEditPopupOpen(false);
+      setEditingTodo(null);
+    },
+    [updateTodo],
+  );
+
+  const handleCancelEdit = useCallback(() => {
+    setIsEditPopupOpen(false);
+    setEditingTodo(null);
+  }, []);
 
   useEffect(() => {
     refreshTodos();
@@ -117,9 +158,15 @@ export function ListTodoComponent() {
             completed={todo.completed}
             chips={getCustomChips(todo)}
             onDelete={() => handleDeleteTodo(todo.todoId)}
+            onUpdate={() => handleUpdateTodo(todo)}
           />
         ))}
       </div>
+
+      {/* Edit Todo Popup */}
+      <PopupComponent isOpen={isEditPopupOpen} onClose={handleCancelEdit} title="Edit Todo" showActions={false}>
+        <UdpateTodoPopupComponent todo={editingTodo} onSave={handleSaveTodo} onCancel={handleCancelEdit} />
+      </PopupComponent>
     </div>
   );
 }
