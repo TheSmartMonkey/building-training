@@ -50,4 +50,19 @@ export class ListTodoApp {
       this.loading = false;
     }
   }
+
+  async deleteTodo(todoId: string): Promise<void> {
+    try {
+      this.loading = true;
+      this.error = null;
+      await this.todoService.deleteTodo(todoId);
+      // Remove the todo from the local state
+      this.todos = this.todos.filter((todo) => todo.todoId !== todoId);
+    } catch (err) {
+      this.error = 'Failed to delete todo';
+      console.error(err);
+    } finally {
+      this.loading = false;
+    }
+  }
 }

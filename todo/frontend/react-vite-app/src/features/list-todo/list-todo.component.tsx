@@ -17,14 +17,26 @@ export function ListTodoComponent() {
   const [completedCount, setCompletedCount] = useState<number>(listTodoApp.getCompletedCount());
   const [pendingCount, setPendingCount] = useState<number>(listTodoApp.getPendingCount());
 
-  const refreshTodos = useCallback(async () => {
-    await listTodoApp.fetchTodos();
+  const syncTodos = useCallback(async () => {
     setTodos(listTodoApp.getTodos());
     setLoading(listTodoApp.getLoading());
     setError(listTodoApp.getError());
     setCompletedCount(listTodoApp.getCompletedCount());
     setPendingCount(listTodoApp.getPendingCount());
   }, [listTodoApp]);
+
+  const refreshTodos = useCallback(async () => {
+    await listTodoApp.fetchTodos();
+    syncTodos();
+  }, [listTodoApp, syncTodos]);
+
+  const handleDeleteTodo = useCallback(
+    async (todoId: string) => {
+      await listTodoApp.deleteTodo(todoId);
+      syncTodos();
+    },
+    [listTodoApp, syncTodos],
+  );
 
   useEffect(() => {
     refreshTodos();
@@ -79,6 +91,7 @@ export function ListTodoComponent() {
             description={todo.description}
             completed={todo.completed}
             chips={getCustomChips(todo)}
+            onDelete={() => handleDeleteTodo(todo.todoId)}
           />
         ))}
       </div>

@@ -13,4 +13,8 @@ export class TodoService {
   async createTodo(todo: CreateTodoInput): Promise<void> {
     await this._http.post(this.BASE_URL, todo);
   }
+
+  async deleteTodo(todoId: string): Promise<void> {
+    await this._http.delete(`${this.BASE_URL}/${todoId}`);
+  }
 }

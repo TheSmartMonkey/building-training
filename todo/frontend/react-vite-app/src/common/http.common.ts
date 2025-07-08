@@ -13,6 +13,19 @@ export default class HttpCommon {
     }
   }
 
+  async delete(url: string) {
+    try {
+      const response = await fetch(url, { method: 'DELETE' });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error deleting data:', error);
+      throw error;
+    }
+  }
+
   async post<T>(url: string, data: T) {
     try {
       const response = await fetch(url, {
