@@ -1,4 +1,5 @@
 import HttpCommon from '../common/http.common';
+import { Todo } from '../models/todo.model';
 
 export class TodoService {
   private readonly BASE_URL = 'http://localhost:3000/todos';
@@ -9,11 +10,7 @@ export class TodoService {
     return this._http.get(this.BASE_URL);
   }
 
-  async createTodo(title: string, description: string, completed: boolean) {
-    return this._http.post(this.BASE_URL, {
-      title,
-      description,
-      completed,
-    });
+  async createTodo(todo: Todo) {
+    return this._http.post(this.BASE_URL, todo);
   }
 }

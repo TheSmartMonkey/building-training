@@ -1,12 +1,24 @@
+import { useMemo } from 'react';
+import HttpCommon from '../../common/http.common';
+import { TodoService } from '../../services/todo.service';
+
 export function CreateTodoComponent() {
+  const httpClient = useMemo(() => new HttpCommon(), []);
+  const todoService = useMemo(() => new TodoService(httpClient), [httpClient]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const title = formData.get('title') as string;
+    const description = formData.get('description') as string;
+    const completed = formData.get('completed') === 'on';
+    const todo = { title, description, completed };
+    await todoService.createTodo(todo);
+  };
+
   return (
     <div className="p-4 max-w-md mx-auto">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-        className="bg-gray-700 shadow-md rounded px-8 pt-6 pb-8 mb-4"
-      >
+      <form onSubmit={handleSubmit} className="bg-gray-700 shadow-md rounded px-8 pt-6 pb-8 mb-4">
         <div className="mb-4">
           <label htmlFor="title" className="block text-sm font-bold mb-2">
             Title:
