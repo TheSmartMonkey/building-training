@@ -3,7 +3,8 @@ export default class HttpCommon {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
       return response.json();
     } catch (error) {
@@ -21,6 +22,11 @@ export default class HttpCommon {
         },
         body: JSON.stringify(data),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
 
       const newData = await response.json();
       console.log('New data created:', newData);

@@ -1,6 +1,6 @@
 import './App.css';
 import { CreateTodoComponent } from './features/create-todo/create-todo.component';
-import { ListTodoComponent } from './features/list-todo/list-todo.components';
+import { ListTodoComponent } from './features/list-todo/list-todo.component';
 
 function App() {
   return (

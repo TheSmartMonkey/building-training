@@ -1,73 +1,53 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import HttpCommon from '../../common/http.common';
+import { AlertComponent } from '../../components/alert.component';
+import { ButtonComponent } from '../../components/button.component';
+import { CheckboxComponent } from '../../components/checkbox.component';
+import { InputComponent } from '../../components/input.component';
+import { TextareaComponent } from '../../components/textarea.component';
 import { TodoService } from '../../services/todo.service';
 
 export function CreateTodoComponent() {
   const httpClient = useMemo(() => new HttpCommon(), []);
   const todoService = useMemo(() => new TodoService(httpClient), [httpClient]);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
     const formData = new FormData(e.target as HTMLFormElement);
     const title = formData.get('title') as string;
     const description = formData.get('description') as string;
     const completed = formData.get('completed') === 'on';
     const todo = { title, description, completed };
-    await todoService.createTodo(todo);
+
+    try {
+      await todoService.createTodo(todo);
+      setSuccess('Todo created successfully!');
+      (e.target as HTMLFormElement).reset();
+    } catch (error) {
+      console.error(error);
+      setError('An unexpected error occurred');
+    }
   };
 
   return (
     <div className="p-4 max-w-md mx-auto">
       <form onSubmit={handleSubmit} className="bg-gray-700 shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <div className="mb-4">
-          <label htmlFor="title" className="block text-sm font-bold mb-2">
-            Title:
-          </label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            placeholder="Enter todo title"
-            className="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="description" className="block text-sm font-bold mb-2">
-            Description:
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            placeholder="Enter todo description"
-            className="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
-            rows={4}
-          />
-        </div>
-
-        <div className="mb-6">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="completed"
-              name="completed"
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="completed" className="ml-2 block text-sm font-bold">
-              Completed
-            </label>
-          </div>
-        </div>
+        <InputComponent label="Title" name="title" placeholder="Enter todo title" value="" onChange={() => {}} />
+        <TextareaComponent label="Description" name="description" placeholder="Enter todo description" value="" onChange={() => {}} />
+        <CheckboxComponent label="Completed" name="completed" checked={false} onChange={() => {}} />
 
         <div className="flex items-center justify-end">
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
-            Create Todo
-          </button>
+          <ButtonComponent type="submit">Create Todo</ButtonComponent>
         </div>
       </form>
+
+      {error && <AlertComponent type="error" message={error} />}
+      {success && <AlertComponent type="success" message={success} />}
     </div>
   );
 }

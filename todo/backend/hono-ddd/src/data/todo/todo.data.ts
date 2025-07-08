@@ -9,8 +9,13 @@ export class TodoData {
   constructor(private readonly _dbClient: SQLiteClient, private readonly _todoDbAdapter: TodoDataAdapter) {}
 
   async create(todo: TodoEntity): Promise<void> {
-    const data = this._todoDbAdapter.toSchema(todo);
-    await this._dbClient.client.insert(todoTable).values(data);
+    try {
+      const data = this._todoDbAdapter.toSchema(todo);
+      await this._dbClient.client.insert(todoTable).values(data);
+    } catch (error) {
+      // Re-throw database errors so they can be handled by the middleware
+      throw error;
+    }
   }
 
   async getAll(): Promise<TodoEntity[]> {
