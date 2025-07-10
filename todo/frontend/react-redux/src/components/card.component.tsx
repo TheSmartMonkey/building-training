@@ -1,0 +1,89 @@
+import { ChipComponent, ChipProps } from './chip.component';
+
+type CardProps = {
+  title: string;
+  description: string;
+  completed: boolean;
+  className?: string;
+  onClick?: () => void;
+  hover?: boolean;
+  chips?: ChipProps[];
+  onDelete?: () => void;
+  onUpdate?: () => void;
+};
+
+export function CardComponent({
+  title,
+  description,
+  completed,
+  className = '',
+  onClick,
+  hover = true,
+  chips,
+  onDelete,
+  onUpdate,
+}: CardProps) {
+  const baseClasses = 'bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700';
+  const hoverClasses = hover ? 'hover:shadow-lg transition-shadow duration-300' : '';
+  const clickableClasses = onClick ? 'cursor-pointer' : '';
+
+  const combinedClasses = `${baseClasses} ${hoverClasses} ${clickableClasses} ${className}`.trim();
+
+  const defaultChips: ChipProps[] = [
+    {
+      label: completed ? 'Completed' : 'Pending',
+      variant: completed ? 'success' : 'warning',
+      size: 'sm',
+    },
+  ];
+
+  const displayChips = chips || defaultChips;
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card's onClick
+    if (onDelete) {
+      onDelete();
+    }
+  };
+
+  const handleUpdateClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card's onClick
+    if (onUpdate) {
+      onUpdate();
+    }
+  };
+
+  return (
+    <div className={combinedClasses} onClick={onClick}>
+      <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">{title}</h3>
+      <p className="text-gray-600 dark:text-gray-300 mb-4">{description}</p>
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2 flex-wrap">
+          {displayChips.map((chip, index) => (
+            <ChipComponent key={index} label={chip.label} variant={chip.variant} size={chip.size} onClick={chip.onClick} />
+          ))}
+        </div>
+      </div>
+      {onDelete && (
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex gap-2">
+            {onUpdate && (
+              <button
+                onClick={handleUpdateClick}
+                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-200 text-sm font-medium"
+              >
+                Edit
+              </button>
+            )}
+            <button
+              onClick={handleDeleteClick}
+              className="flex-1 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-200 text-sm font-medium"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
